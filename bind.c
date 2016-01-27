@@ -1,6 +1,6 @@
 /* bind.c -- key binding and startup file support for the readline library. */
 
-/* Copyright (C) 1987-2012 Free Software Foundation, Inc.
+/* Copyright (C) 1987-2016 Free Software Foundation, Inc.
 
    This file is part of the GNU Readline Library (Readline), a library
    for reading lines of text with interactive input and history editing.
@@ -1288,7 +1288,7 @@ rl_parse_and_bind (string)
 {
   char *funname, *kname;
   register int c, i;
-  int key, equivalency, foundmod;
+  int key, equivalency, foundmod, foundsep;
 
   while (string && whitespace (*string))
     string++;
@@ -1329,6 +1329,8 @@ rl_parse_and_bind (string)
   for (; (c = string[i]) && c != ':' && c != ' ' && c != '\t'; i++ );
 
   equivalency = (c == ':' && string[i + 1] == '=');
+
+  foundsep = c != 0;
 
   /* Mark the end of the command (or keyname). */
   if (string[i])
@@ -1417,6 +1419,12 @@ remove_trailing:
   if (equivalency)
     {
       return 0;
+    }
+
+  if (foundsep == 0)
+    {
+      _rl_init_file_error ("%s: no key sequence terminator", string);
+      return 1;
     }
 
   /* If this is a new-style key-binding, then do the binding with
