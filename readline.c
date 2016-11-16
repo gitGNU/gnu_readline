@@ -920,6 +920,15 @@ _rl_dispatch_subseq (key, map, got_subseq)
               _rl_pushed_input_available () == 0 &&
 	      _rl_input_queued ((_rl_keyseq_timeout > 0) ? _rl_keyseq_timeout*1000 : 0) == 0)
 	    return (_rl_dispatch (ANYOTHERKEY, FUNCTION_TO_KEYMAP (map, key)));
+	  /* This is a very specific test.  It can possibly be generalized in
+	     the future, but for now it handles a specific case of ESC being
+	     the last character in a keyboard macro. */
+	  if (rl_editing_mode == vi_mode && key == ESC && map == vi_insertion_keymap &&
+	      (RL_ISSTATE (RL_STATE_INPUTPENDING) == 0) &&
+	      (RL_ISSTATE (RL_STATE_MACROINPUT) && _rl_peek_macro_key () == 0) &&
+	      _rl_pushed_input_available () == 0 &&
+	      _rl_input_queued ((_rl_keyseq_timeout > 0) ? _rl_keyseq_timeout*1000 : 0) == 0)
+	    return (_rl_dispatch (ANYOTHERKEY, FUNCTION_TO_KEYMAP (map, key)));	      
 #endif
 
 	  RESIZE_KEYSEQ_BUFFER ();
@@ -1095,7 +1104,7 @@ rl_initialize ()
 {
   /* If we have never been called before, initialize the
      terminal and data structures. */
-  if (!rl_initialized)
+  if (rl_initialized == 0)
     {
       RL_SETSTATE(RL_STATE_INITIALIZING);
       readline_initialize_everything ();
@@ -1103,6 +1112,8 @@ rl_initialize ()
       rl_initialized++;
       RL_SETSTATE(RL_STATE_INITIALIZED);
     }
+  else
+    (void)_rl_init_locale ();	/* check current locale */
 
   /* Initialize the current line information. */
   _rl_init_line_state ();

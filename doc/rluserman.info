@@ -1,9 +1,9 @@
-This is rluserman.info, produced by makeinfo version 6.0 from
+This is rluserman.info, produced by makeinfo version 6.1 from
 rluserman.texi.
 
 This manual describes the end user interface of the GNU Readline Library
-(version 7.0, 25 January 2016), a library which aids in the consistency
-of user interface across discrete programs which provide a command line
+(version 7.0, 16 July 2016), a library which aids in the consistency of
+user interface across discrete programs which provide a command line
 interface.
 
    Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -435,12 +435,19 @@ Variable Settings
           If set to 'on', Readline will convert characters with the
           eighth bit set to an ASCII key sequence by stripping the
           eighth bit and prefixing an <ESC> character, converting them
-          to a meta-prefixed key sequence.  The default value is 'on'.
+          to a meta-prefixed key sequence.  The default value is 'on',
+          but will be set to 'off' if the locale is one that contains
+          eight-bit characters.
 
      'disable-completion'
           If set to 'On', Readline will inhibit word completion.
           Completion characters will be inserted into the line as if
           they had been mapped to 'self-insert'.  The default is 'off'.
+
+     'echo-control-characters'
+          When set to 'on', on operating systems that indicate they
+          support it, readline echoes a character corresponding to a
+          signal generated from the keyboard.  The default is 'on'.
 
      'editing-mode'
           The 'editing-mode' variable controls which default set of key
@@ -457,11 +464,6 @@ Variable Settings
           sequences of non-printing characters, which can be used to
           embed a terminal control sequence into the mode string.  The
           default is '@'.
-
-     'echo-control-characters'
-          When set to 'on', on operating systems that indicate they
-          support it, readline echoes a character corresponding to a
-          signal generated from the keyboard.  The default is 'on'.
 
      'enable-bracketed-paste'
           When set to 'On', Readline will configure the terminal in a
@@ -497,7 +499,9 @@ Variable Settings
           list.  If set to zero, any existing history entries are
           deleted and no new entries are saved.  If set to a value less
           than zero, the number of history entries is not limited.  By
-          default, the number of history entries is not limited.
+          default, the number of history entries is not limited.  If an
+          attempt is made to set HISTORY-SIZE to a non-numeric value,
+          the maximum number of history entries will be set to 500.
 
      'horizontal-scroll-mode'
           This variable can be set to either 'on' or 'off'.  Setting it
@@ -510,8 +514,9 @@ Variable Settings
           If set to 'on', Readline will enable eight-bit input (it will
           not clear the eighth bit in the characters it reads),
           regardless of what the terminal claims it can support.  The
-          default value is 'off'.  The name 'meta-flag' is a synonym for
-          this variable.
+          default value is 'off', but Readline will set it to 'on' if
+          the locale contains eight-bit characters.  The name
+          'meta-flag' is a synonym for this variable.
 
      'isearch-terminators'
           The string of characters that should terminate an incremental
@@ -575,7 +580,8 @@ Variable Settings
      'output-meta'
           If set to 'on', Readline will display characters with the
           eighth bit set directly rather than as a meta-prefixed escape
-          sequence.  The default is 'off'.
+          sequence.  The default is 'off', but Readline will set it to
+          'on' if the locale contains eight-bit characters.
 
      'page-completions'
           If set to 'on', Readline uses an internal 'more'-like pager to
@@ -1910,29 +1916,29 @@ their use in free software.
 
 
 Tag Table:
-Node: Top907
-Node: Command Line Editing1429
-Node: Introduction and Notation2083
-Node: Readline Interaction3708
-Node: Readline Bare Essentials4901
-Node: Readline Movement Commands6686
-Node: Readline Killing Commands7648
-Node: Readline Arguments9568
-Node: Searching10614
-Node: Readline Init File12768
-Node: Readline Init File Syntax13923
-Node: Conditional Init Constructs33408
-Node: Sample Init File35935
-Node: Bindable Readline Commands39054
-Node: Commands For Moving40110
-Node: Commands For History40972
-Node: Commands For Text45232
-Node: Commands For Killing48676
-Node: Numeric Arguments50844
-Node: Commands For Completion51985
-Node: Keyboard Macros53955
-Node: Miscellaneous Commands54644
-Node: Readline vi Mode58496
-Node: GNU Free Documentation License59410
+Node: Top904
+Node: Command Line Editing1426
+Node: Introduction and Notation2080
+Node: Readline Interaction3705
+Node: Readline Bare Essentials4898
+Node: Readline Movement Commands6683
+Node: Readline Killing Commands7645
+Node: Readline Arguments9565
+Node: Searching10611
+Node: Readline Init File12765
+Node: Readline Init File Syntax13920
+Node: Conditional Init Constructs33828
+Node: Sample Init File36355
+Node: Bindable Readline Commands39474
+Node: Commands For Moving40530
+Node: Commands For History41392
+Node: Commands For Text45652
+Node: Commands For Killing49096
+Node: Numeric Arguments51264
+Node: Commands For Completion52405
+Node: Keyboard Macros54375
+Node: Miscellaneous Commands55064
+Node: Readline vi Mode58916
+Node: GNU Free Documentation License59830
 
 End Tag Table

@@ -49,6 +49,8 @@
 #include "rlprivate.h"
 #include "xmalloc.h"
 
+#define MAX_MACRO_LEVEL 16
+
 /* **************************************************************** */
 /*								    */
 /*			Hacking Keyboard Macros 		    */
@@ -83,13 +85,25 @@ struct saved_macro {
 /* The list of saved macros. */
 static struct saved_macro *macro_list = (struct saved_macro *)NULL;
 
+static int macro_level = 0;
+
 /* Set up to read subsequent input from STRING.
    STRING is free ()'ed when we are done with it. */
 void
 _rl_with_macro_input (string)
      char *string;
 {
-  _rl_push_executing_macro ();
+  if (macro_level > MAX_MACRO_LEVEL)
+    {
+      _rl_errmsg ("maximum macro execution nesting level exceeded");
+      _rl_abort_internal ();
+      return;
+    }
+
+#if 0
+  if (rl_executing_macro)		/* XXX - later */
+#endif
+    _rl_push_executing_macro ();
   rl_executing_macro = string;
   executing_macro_index = 0;
   RL_SETSTATE(RL_STATE_MACROINPUT);
@@ -117,8 +131,22 @@ _rl_next_macro_key ()
       _rl_pop_executing_macro ();
   return c;
 #else
+  /* XXX - consider doing the same as the callback code, just not testing
+     whether we're running in callback mode */
   return (rl_executing_macro[executing_macro_index++]);
 #endif
+}
+
+int
+_rl_peek_macro_key ()
+{
+  if (rl_executing_macro == 0)
+    return (0);
+  if (rl_executing_macro[executing_macro_index] == 0 && (macro_list == 0 || macro_list->string == 0))
+    return (0);
+  if (rl_executing_macro[executing_macro_index] == 0 && macro_list && macro_list->string)
+    return (macro_list->string[0]);
+  return (rl_executing_macro[executing_macro_index]);
 }
 
 int
@@ -146,6 +174,8 @@ _rl_push_executing_macro ()
   saver->string = rl_executing_macro;
 
   macro_list = saver;
+
+  macro_level++;
 }
 
 /* Discard the current macro, replacing it with the one
@@ -167,6 +197,8 @@ _rl_pop_executing_macro ()
       macro_list = macro_list->next;
       xfree (macro);
     }
+
+  macro_level--;
 
   if (rl_executing_macro == 0)
     RL_UNSETSTATE(RL_STATE_MACROINPUT);
