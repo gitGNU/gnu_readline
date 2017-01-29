@@ -279,6 +279,7 @@ add_history (string)
      const char *string;
 {
   HIST_ENTRY *temp;
+  int new_length;
 
   if (history_stifled && (history_length == history_max_entries))
     {
@@ -295,13 +296,9 @@ add_history (string)
 
       /* Copy the rest of the entries, moving down one slot.  Copy includes
 	 trailing NULL.  */
-#if 0
-      for (i = 0; i < history_length; i++)
-	the_history[i] = the_history[i + 1];
-#else
       memmove (the_history, the_history + 1, history_length * sizeof (HIST_ENTRY *));
-#endif
 
+      new_length = history_length;
       history_base++;
     }
   else
@@ -315,7 +312,7 @@ add_history (string)
 	  else
 	    history_size = DEFAULT_HISTORY_INITIAL_SIZE;
 	  the_history = (HIST_ENTRY **)xmalloc (history_size * sizeof (HIST_ENTRY *));
-	  history_length = 1;
+	  new_length = 1;
 	}
       else
 	{
@@ -325,14 +322,15 @@ add_history (string)
 	      the_history = (HIST_ENTRY **)
 		xrealloc (the_history, history_size * sizeof (HIST_ENTRY *));
 	    }
-	  history_length++;
+	  new_length = history_length + 1;
 	}
     }
 
   temp = alloc_history_entry ((char *)string, hist_inittime ());
 
-  the_history[history_length] = (HIST_ENTRY *)NULL;
-  the_history[history_length - 1] = temp;
+  the_history[new_length] = (HIST_ENTRY *)NULL;
+  the_history[new_length - 1] = temp;
+  history_length = new_length;
 }
 
 /* Change the time stamp of the most recent history entry to STRING. */
@@ -500,16 +498,66 @@ remove_history (which)
 {
   HIST_ENTRY *return_value;
   register int i;
+#if 1
+  int nentries;
+  HIST_ENTRY **start, **end;
+#endif
 
   if (which < 0 || which >= history_length || history_length ==  0 || the_history == 0)
     return ((HIST_ENTRY *)NULL);
 
   return_value = the_history[which];
 
+#if 1
+  /* Copy the rest of the entries, moving down one slot.  Copy includes
+     trailing NULL.  */
+  nentries = history_length - which;
+  start = the_history + which;
+  end = start + 1;
+  memmove (start, end, nentries * sizeof (HIST_ENTRY *));
+#else
   for (i = which; i < history_length; i++)
     the_history[i] = the_history[i + 1];
+#endif
 
   history_length--;
+
+  return (return_value);
+}
+
+HIST_ENTRY **
+remove_history_range (first, last)
+     int first, last;
+{
+  HIST_ENTRY **return_value;
+  register int i;
+  int nentries;
+  HIST_ENTRY **start, **end;
+
+  if (the_history == 0 || history_length == 0)
+    return ((HIST_ENTRY **)NULL);
+  if (first < 0 || first >= history_length || last < 0 || last >= history_length)
+    return ((HIST_ENTRY **)NULL);
+  if (first > last)
+    return (HIST_ENTRY **)NULL;
+
+  nentries = last - first + 1;
+  return_value = (HIST_ENTRY **)malloc ((nentries + 1) * sizeof (HIST_ENTRY *));
+  if (return_value == 0)
+    return return_value;
+
+  /* Return all the deleted entries in a list */
+  for (i = first ; i <= last; i++)
+    return_value[i - first] = the_history[i];
+  return_value[i - first] = (HIST_ENTRY *)NULL;
+
+  /* Copy the rest of the entries, moving down NENTRIES slots.  Copy includes
+     trailing NULL.  */
+  start = the_history + first;
+  end = the_history + last + 1;
+  memmove (start, end, (history_length - last) * sizeof (HIST_ENTRY *));
+
+  history_length -= nentries;
 
   return (return_value);
 }
@@ -575,4 +623,5 @@ clear_history ()
     }
 
   history_offset = history_length = 0;
+  history_base = 1;		/* reset history base to default */
 }

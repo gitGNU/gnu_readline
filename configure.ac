@@ -20,7 +20,7 @@ dnl Process this file with autoconf to produce a configure script.
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_REVISION([for Readline 7.0, version 2.81])
+AC_REVISION([for Readline 7.0, version 2.82])
 
 AC_INIT(readline, 7.0, bug-readline@gnu.org)
 
@@ -132,7 +132,7 @@ AC_HEADER_STAT
 AC_HEADER_DIRENT
 
 AC_CHECK_FUNCS(fcntl kill lstat readlink)
-AC_CHECK_FUNCS(memmove pselect putenv select setenv setlocale \
+AC_CHECK_FUNCS(fnmatch memmove pselect putenv select setenv setlocale \
 		strcasecmp strpbrk tcgetattr vsnprintf)
 AC_CHECK_FUNCS(isascii isxdigit)
 AC_CHECK_FUNCS(getpwent getpwnam getpwuid)

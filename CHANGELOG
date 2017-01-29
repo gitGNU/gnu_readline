@@ -1304,3 +1304,9 @@ configure.ac
 				   ----
 configure.ac,Makefile.in,examples/Makefile.in
 	- remove references to purify
+
+				   11/21
+				   -----
+configure.ac,config.h.in
+	- fnmatch: check for libc function, define HAVE_FNMATCH if found. Now
+	  used by vi-mode history search functions
